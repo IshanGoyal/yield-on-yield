@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface LamboCalculatorProps {
   initialPortfolioValue: number;
@@ -17,22 +17,28 @@ export default function LamboCalculator({ initialPortfolioValue, initialYieldRat
   const [portfolioValue, setPortfolioValue] = useState(initialPortfolioValue);
   const [yieldRate, setYieldRate] = useState(initialYieldRate);
 
-  // Calculate time until Lambo
+  // Update yield rate when initialYieldRate changes (speed mode changes)
+  useEffect(() => {
+    setYieldRate(initialYieldRate);
+  }, [initialYieldRate]);
+
+  // Calculate time until Lambo using continuous compound interest
   const calculateTimeToLambo = () => {
     if (portfolioValue >= LAMBO_PRICE_SATS) return 0;
     if (yieldRate <= 0) return Infinity;
 
-    // Using compound interest formula: A = P(1 + r)^t
-    // Solving for t: t = log(A/P) / log(1 + r)
+    // Using continuous compound interest formula: A = P * e^(rt)
+    // Solving for t: t = ln(A/P) / r
     // where A is target amount (Lambo price), P is principal (portfolio value), r is yield rate
-    const yearsToLambo = Math.log(LAMBO_PRICE_SATS / portfolioValue) / Math.log(1 + yieldRate);
-    return yearsToLambo;
+    const yearsToLambo = Math.log(LAMBO_PRICE_SATS / portfolioValue) / yieldRate;
+    return Math.max(0, yearsToLambo);
   };
 
   const timeToLambo = calculateTimeToLambo();
   const years = Math.floor(timeToLambo);
-  const months = Math.floor((timeToLambo - years) * 12);
-  const days = Math.floor(((timeToLambo - years) * 12 - months) * 30);
+  const remainingMonths = (timeToLambo - years) * 12;
+  const months = Math.floor(remainingMonths);
+  const days = Math.floor((remainingMonths - months) * 30.44); // Using more precise days per month
 
   return (
     <div className="flex flex-col items-center space-y-8 p-8 bg-blue-100 rounded-xl shadow-2xl max-w-2xl mx-auto">
@@ -49,8 +55,9 @@ export default function LamboCalculator({ initialPortfolioValue, initialYieldRat
           <input
             type="number"
             value={portfolioValue}
-            onChange={(e) => setPortfolioValue(Number(e.target.value))}
+            onChange={(e) => setPortfolioValue(Math.max(0, Number(e.target.value)))}
             className="w-full p-3 rounded-lg border-2 border-[#002eff] focus:outline-none focus:ring-2 focus:ring-[#002eff] text-[#002eff]"
+            min="0"
           />
         </div>
 
@@ -59,10 +66,11 @@ export default function LamboCalculator({ initialPortfolioValue, initialYieldRat
           <div className="relative">
             <input
               type="number"
-              value={yieldRate * 100}
-              onChange={(e) => setYieldRate(Number(e.target.value) / 100)}
+              value={(yieldRate * 100).toFixed(1)}
+              onChange={(e) => setYieldRate(Math.max(0, Number(e.target.value)) / 100)}
               className="w-full p-3 rounded-lg border-2 border-[#002eff] focus:outline-none focus:ring-2 focus:ring-[#002eff] text-[#002eff] pr-8"
               step="0.1"
+              min="0"
             />
             <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#002eff]">%</span>
           </div>
@@ -76,9 +84,9 @@ export default function LamboCalculator({ initialPortfolioValue, initialYieldRat
             <p className="text-green-500 font-bold">You can already buy a Lambo! 🎉</p>
           ) : (
             <p className="text-[#002eff] text-lg">
-              {years > 0 && <span>{years} years{" "}</span>}
-              {months > 0 && <span>{months} months{" "}</span>}
-              {days > 0 && <span>{days} days</span>}
+              {years > 0 && <span>{years} year{years !== 1 ? 's' : ''}{" "}</span>}
+              {months > 0 && <span>{months} month{months !== 1 ? 's' : ''}{" "}</span>}
+              {days > 0 && <span>{days} day{days !== 1 ? 's' : ''}</span>}
             </p>
           )}
         </div>
