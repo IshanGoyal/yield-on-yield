@@ -2,102 +2,17 @@
 
 import SlotMachine from './components/SlotMachine';
 import ConnectWallet from './components/ConnectWallet';
-import { useState, useCallback } from 'react';
-import Particles from "react-tsparticles";
-import { loadFull } from "tsparticles";
-import type { Engine } from "tsparticles-engine";
+import { useState } from 'react';
 
 type SpeedMode = "SLOW" | "MEDIUM" | "FAST";
 
 export default function Home() {
   const [speedMode, setSpeedMode] = useState<SpeedMode>("MEDIUM");
 
-  const particlesInit = useCallback(async (engine: Engine) => {
-    await loadFull(engine);
-  }, []);
-
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-1 relative">
         <ConnectWallet />
-        <Particles
-          id="baseConfetti"
-          init={particlesInit}
-          options={{
-            fullScreen: {
-              enable: true,
-              zIndex: 1
-            },
-            particles: {
-              number: {
-                value: 0
-              },
-              color: {
-                value: "#ffffff"
-              },
-              shape: {
-                type: "image",
-                image: {
-                  src: "/images/base-logo.png",
-                  width: 24,
-                  height: 24
-                }
-              },
-              opacity: {
-                value: 1,
-                animation: {
-                  enable: true,
-                  speed: 4,
-                  minimumValue: 0,
-                  sync: false,
-                  destroy: "min",
-                  startValue: "max"
-                }
-              },
-              size: {
-                value: 16
-              },
-              life: {
-                duration: {
-                  value: 0.01,
-                  sync: true
-                },
-                count: 1
-              },
-              move: {
-                enable: true,
-                speed: 50,
-                direction: "none",
-                random: true,
-                straight: false,
-                outModes: {
-                  default: "destroy"
-                },
-                gravity: {
-                  enable: true,
-                  acceleration: 50
-                }
-              }
-            },
-            interactivity: {
-              events: {
-                onClick: {
-                  enable: true,
-                  mode: "emitter"
-                }
-              },
-              modes: {
-                emitter: {
-                  quantity: 8,
-                  rate: {
-                    delay: 0.01,
-                    quantity: 8
-                  }
-                }
-              }
-            }
-          }}
-        />
         
         {/* Speed Mode Controls */}
         <div className="fixed top-4 right-4 flex gap-2 z-[100]">
