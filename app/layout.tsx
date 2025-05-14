@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Yield Machine",
-  description: "Watch your yield grow in real-time",
+  description: "Watch your yield grow in real-times",
 };
 
 export default function RootLayout({
